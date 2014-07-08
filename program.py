@@ -20,7 +20,8 @@ class Program(object):
         self.clock = pygame.time.Clock()
 
         self.pausa = True
-        self.velocidad = 30
+        self.velocidad = 100
+        self.velocidad_algoritmo = 8
 
         # a star
         self.pathfinder = PathFinder(self.tablero)
@@ -32,6 +33,10 @@ class Program(object):
         pygame.font.init()
         self.fuente = pygame.font.SysFont("default", 24)
         self.texto = self.fuente.render("Pausado", True, (255, 0, 255))
+        self.texto_algo = self.fuente.render("Velocidad: " + str(self.velocidad_algoritmo),
+                                True, (255, 0, 255))
+
+
 
     def draw_matriz(self):
 
@@ -60,6 +65,9 @@ class Program(object):
         if self.pathfinder.encontrado:
             for casillas in self.pathfinder.ruta:
                 pygame.draw.rect(self.screen, (0, 255, 0), casillas.rect)
+        else:
+            for analizados in self.pathfinder.closed_list:
+                pygame.draw.rect(self.screen, (255, 255, 240), analizados.rect)
 
     def execute(self):
 
@@ -95,11 +103,11 @@ class Program(object):
                                 self.pausa = False
 
                             if event.key == pygame.K_2:
-                                if self.velocidad < 95:
-                                    self.velocidad += 5
+                                if self.velocidad_algoritmo < 30:
+                                    self.velocidad_algoritmo += 1
                             if event.key == pygame.K_1:
-                                if self.velocidad > 10:
-                                    self.velocidad -= 5
+                                if self.velocidad_algoritmo > 0:
+                                    self.velocidad_algoritmo -= 1
 
                             if event.key == pygame.K_d:
                                 if self.cursor.modo_borrar:
@@ -111,20 +119,38 @@ class Program(object):
                                     self.texto = self.fuente.render("Pausado  Modo borrar paredes",
                                                 True, (255, 0, 255))
 
+                            if event.key == pygame.K_r:
+                                self.tablero.matrix = self.tablero.rellenaRandom()
+                                self.pathfinder.reset()
+                                self.tablero.reset_ab()
+
+                    if pygame.key.get_pressed()[pygame.K_l] and pygame.key.get_pressed()[pygame.K_n]:
+
+                        self.tablero = Tablero(80, 80)
+                        self.pathfinder = PathFinder(self.tablero)
+                        self.cursor = Cursor(self.tablero, self.pathfinder)
+
                     #updates
                     self.cursor.update()
                     self.cursor.changeState()
+
+                    self.texto_algo = self.fuente.render("Velocidad: " + str(self.velocidad_algoritmo),
+                                True, (255, 0, 255))
 
                     # draws
                     self.screen.fill((0, 0, 0))
                     self.draw_matriz()
                     self.screen.blit(self.texto, (8, self.screen.get_height() - 28))
+                    self.screen.blit(self.texto_algo, (self.screen.get_width() - 200,
+                                 self.screen.get_height() - 28))
                     pygame.draw.rect(self.screen, (250, 0, 0), self.cursor.rect)
                     pygame.display.update()
 
              #pathfinder
 
-            self.pathfinder.run()
+            #self.pathfinder.run2()
+            for i in range(self.velocidad_algoritmo):
+                self.pathfinder.run()  # el que funciona
             # updates
             self.cursor.update()
 

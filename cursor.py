@@ -26,6 +26,7 @@ class Cursor(object):
             for cell in fila:
                 if pygame.mouse.get_pressed()[0]:
                     if self.puntero.colliderect(cell.rect):
+
                         if not self.pathfinder.existe_a:
 
                             if cell.estado != "B":
@@ -33,6 +34,8 @@ class Cursor(object):
                                 cell.g = 10
                                 self.pathfinder.ini = cell
                                 self.pathfinder.existe_a = True
+                                self.pathfinder.encontrado = False
+                                self.pathfinder.reconstruye = False
 
                         else:
 
@@ -53,6 +56,9 @@ class Cursor(object):
                                 cell.estado = "B"
                                 self.pathfinder.fin = cell
                                 self.pathfinder.existe_b = True
+                                self.pathfinder.encontrado = False
+                                self.pathfinder.reconstruye = False
+
 
                         else:
 
